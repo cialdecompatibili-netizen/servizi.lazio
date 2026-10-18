@@ -60,6 +60,23 @@
   A.lzTab = function (k) { cur = k; (LST[k].length ? Promise.resolve() : load()).then(draw); };
   A.views.lazio = function () { cur = 'art'; return (LST.art.length ? Promise.resolve() : load()).then(draw); };
   A.views.pagine = function () { cur = 'pag'; return (LST.pag.length ? Promise.resolve() : load()).then(draw); };
+  var INC = [['_avada/_includes/avada/header.html', 'Menu e testata'], ['_avada/_includes/avada/footer.html', 'Piè di pagina']], INCED = null;
+  A.views.menu = function () {
+    var h = '<h2>Menu e piè di pagina</h2><div class="card"><p style="color:#787c82">Questi blocchi sono unici: una modifica vale per TUTTE le pagine e gli articoli del sito. Nel codice ci sono istruzioni tra parentesi graffe ({% ... %} e {{ ... }}): non cancellarle.</p>';
+    INC.forEach(function (x, i) { h += '<p><button class="btn" onclick="A.incEdit(' + i + ')">' + x[1] + '</button></p>'; });
+    M().innerHTML = h + '</div>'; return Promise.resolve();
+  };
+  A.incEdit = function (i) {
+    return A.getFile(INC[i][0]).then(function (f) {
+      INCED = { i: i, sha: f.sha };
+      M().innerHTML = '<h2><button class="btn sm" onclick="A.go(\'menu\')">&larr; Indietro</button> ' + INC[i][1] + '</h2><div class="card"><textarea id="incTxt" rows="28" style="width:100%;font-family:monospace;font-size:12px">' + esc(f.text) + '</textarea><p><button class="btn primary" onclick="A.incSave()">Salva</button></p></div>';
+    });
+  };
+  A.incSave = A.wrap(function () {
+    return A.putFile(INC[INCED.i][0], $('incTxt').value, INCED.sha, 'admin: aggiorna ' + INC[INCED.i][1]).then(function (r) {
+      INCED.sha = r && r.content ? r.content.sha : INCED.sha; A.toast('Salvato. Il sito si aggiorna al prossimo deploy.');
+    });
+  });
 
   var FIELDS = {
     art: [['title', 'Titolo', 'text'], ['seo_title', 'SEO Title', 'text'], ['description', 'Descrizione (meta description)', 'area'], ['thumb_full', 'Immagine in evidenza (percorso, es. /wp-content/uploads/2020/07/foto.jpg)', 'text'],
@@ -88,11 +105,11 @@
     var d = new DOMParser().parseFromString('<!DOCTYPE html><html><body>' + main + '</body></html>', 'text/html'), v = { d: d, tx: [], im: [], lk: [] }, w = d.createTreeWalker(d.body, NodeFilter.SHOW_TEXT, null), n;
     while ((n = w.nextNode())) {
       var pn = n.parentNode.nodeName;
-      if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|TITLE)$/.test(pn) || !/\S/.test(n.nodeValue)) continue;
+      if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|TITLE)$/.test(pn) || !/\S/.test(n.nodeValue) || /\{[{%]/.test(n.nodeValue)) continue;
       v.tx.push({ n: n, tag: pn, v: n.nodeValue.replace(/\s+/g, ' ').trim() });
     }
-    [].forEach.call(d.body.querySelectorAll('img'), function (el) { v.im.push({ el: el, src: el.getAttribute('src') || '', alt: el.getAttribute('alt') || '' }); });
-    [].forEach.call(d.body.querySelectorAll('a[href]'), function (el) { v.lk.push({ el: el, href: el.getAttribute('href') || '', t: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) }); });
+    [].forEach.call(d.body.querySelectorAll('img'), function (el) { if (/\{[{%]/.test((el.getAttribute('src') || '') + (el.getAttribute('alt') || ''))) return; v.im.push({ el: el, src: el.getAttribute('src') || '', alt: el.getAttribute('alt') || '' }); });
+    [].forEach.call(d.body.querySelectorAll('a[href]'), function (el) { if (/\{[{%]/.test(el.getAttribute('href') || '')) return; v.lk.push({ el: el, href: el.getAttribute('href') || '', t: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) }); });
     return v;
   }
   function fld(id, val, lab) {
