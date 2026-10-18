@@ -1,7 +1,7 @@
 ﻿"""Prepara _out/ con il solo mirror statico (niente Jekyll, niente tool/admin/demo)."""
 import os, shutil
 OUT = "_out"
-DIRS = ["contatti","author","blog","categoria_portfolio","portfolio-items","servizi","servizi-a-roma","servizi-agli-edifici","servizi-ai-cittadini","servizi-alle-aziende","slide-page","wp-content","wp-includes"]
+DIRS = ["admin","contatti","author","blog","categoria_portfolio","portfolio-items","servizi","servizi-a-roma","servizi-agli-edifici","servizi-ai-cittadini","servizi-alle-aziende","slide-page","wp-content","wp-includes"]
 FILES = ["index.html","robots.txt","sitemap_index.xml","404.html","CNAME"]
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 for d in DIRS:
