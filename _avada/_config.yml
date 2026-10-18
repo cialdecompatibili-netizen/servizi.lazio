@@ -1,0 +1,12 @@
+title: Servizi Lazio
+url: https://servizi.lazio.it
+baseurl: ""
+avada_prefix: ""
+plugins: []
+collections:
+  lazio:
+    output: true
+    permalink: /:path/
+  categorie:
+    output: true
+    permalink: /:path/

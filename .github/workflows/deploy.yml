@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+      - run: gem install jekyll -v 4.4.1 --no-document
       - run: python3 pubblica_statico.py
       - uses: JamesIves/github-pages-deploy-action@v4
         with:

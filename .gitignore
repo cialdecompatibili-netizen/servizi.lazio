@@ -1,4 +1,4 @@
-_site
+﻿_site
 .bundle
 .DS_store
 .idea
@@ -29,3 +29,4 @@ chat_*.md
 _out/
 
 _avada_site/
+_avada_site_old/
