@@ -8,7 +8,7 @@
     al_folio_min: "1.0.0"
     al_folio_max: "1.x"
   status: bundled
-  demo_path: /about/
+  demo_path: /
   maintainer_contact: https://github.com/al-org-dev
   notes: Core runtime primitives and starter contracts.
 
@@ -78,7 +78,7 @@
     al_folio_min: "1.0.0"
     al_folio_max: "1.x"
   status: bundled
-  demo_path: /about/
+  demo_path: /
   maintainer_contact: https://github.com/al-org-dev
   notes: Icon runtime loading (Font Awesome, Academicons, Scholar Icons).
 
