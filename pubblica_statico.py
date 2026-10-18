@@ -29,7 +29,7 @@ if baseurl:  # anteprima su github.io: i link root-relative nel testo degli arti
     import re
     pre = re.compile(r'((?:href|src|action|poster|data-src)=")/(?!/|%s/)' % re.escape(baseurl.strip("/")))
     sset = re.compile(r'(srcset=")([^"]*)"')
-    fixset = lambda m: m.group(1) + re.sub(r'(^|,\s*)/(?!/)', lambda k: k.group(1) + baseurl + "/", m.group(2)) + '"'
+    fixset = lambda m: m.group(1) + re.sub(r'(^|,\s*)/(?!/|%s/)' % re.escape(baseurl.strip("/")), lambda k: k.group(1) + baseurl + "/", m.group(2)) + '"'
     for dp, dn, fn in os.walk(TMP):
         for f in fn:
             if not f.endswith(".html"): continue
