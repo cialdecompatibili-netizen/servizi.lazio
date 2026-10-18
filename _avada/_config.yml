@@ -7,3 +7,6 @@ collections:
   lazio:
     output: true
     permalink: /:path/
+  categorie:
+    output: true
+    permalink: /:path/
