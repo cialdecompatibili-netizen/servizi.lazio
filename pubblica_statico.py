@@ -38,3 +38,32 @@ if baseurl:  # anteprima su github.io: i link root-relative nel testo degli arti
             s2 = sset.sub(fixset, pre.sub(lambda m: m.group(1) + baseurl + "/", s))
             if s2 != s: open(p, "w", encoding="utf-8", newline="").write(s2)
 print("ok", sum(len(f) for _,_,f in os.walk(OUT)), "file")
+
+# --- Sitemap: generata a ogni deploy da tutte le pagine HTML realmente presenti in _out (mirror + Jekyll)
+import re as _re
+from urllib.parse import quote as _q
+from xml.sax.saxutils import escape as _esc
+if os.path.isfile("CNAME"):
+    origin = "https://" + open("CNAME").read().strip()
+else:
+    origin = "https://%s.github.io%s" % (os.environ.get("GITHUB_REPOSITORY", "cialdecompatibili-netizen/servizi.lazio").split("/")[0], baseurl)
+SKIP_DIRS = {"admin", "wp-content", "wp-includes", ".git"}
+urls = []
+for dp, dn, fn in os.walk(OUT):
+    dn[:] = [d for d in dn if not (dp == OUT and d in SKIP_DIRS)]
+    for f in fn:
+        if not f.endswith(".html") or f == "404.html": continue
+        p = os.path.join(dp, f)
+        head = open(p, encoding="utf-8", errors="ignore").read(4000).lower()
+        if "noindex" in head or 'http-equiv="refresh"' in head: continue
+        rel = os.path.relpath(p, OUT).replace(os.sep, "/")
+        rel = "" if rel == "index.html" else (rel[:-11] if rel.endswith("/index.html") else rel)
+        urls.append(origin + "/" + _q(rel) + ("/" if rel and not rel.endswith(".html") else ""))
+urls = sorted(set(urls))
+sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join("  <url><loc>%s</loc></url>\n" % _esc(u) for u in urls) + "</urlset>\n"
+open(os.path.join(OUT, "sitemap.xml"), "w", encoding="utf-8").write(sm)
+open(os.path.join(OUT, "sitemap_index.xml"), "w", encoding="utf-8").write('<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap><loc>%s/sitemap.xml</loc></sitemap>\n</sitemapindex>\n' % origin)
+rb = os.path.join(OUT, "robots.txt")
+txt = open(rb).read() if os.path.isfile(rb) else ""
+if "Sitemap:" not in txt: open(rb, "w").write(txt.rstrip("\n") + "\n\nSitemap: %s/sitemap.xml\n" % origin)
+print("sitemap:", len(urls), "url ->", origin + "/sitemap.xml")
