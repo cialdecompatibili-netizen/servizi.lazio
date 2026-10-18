@@ -246,6 +246,9 @@ collections:
     permalink: /servizi/:title/
   teachings:
     output: true
+  lazio:
+    output: true
+    permalink: /:path/
 
 # -----------------------------------------------------------------------------
 # Jekyll settings

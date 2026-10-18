@@ -1,0 +1,7 @@
+---
+layout: "servizio"
+title: "Salute"
+description: ""
+---
+{% assign items = site.lazio | where_exp: "i", "i.categorie contains 'servizi/servizi-ai-cittadini/salute'" | sort: "date" | reverse %}
+<ul>{% for i in items %}<li><a href="{{ i.url | relative_url }}">{{ i.title }}</a></li>{% endfor %}</ul>
