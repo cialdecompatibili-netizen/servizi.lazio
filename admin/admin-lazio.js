@@ -1,20 +1,20 @@
 /* Articoli, Categorie e PAGINE (Home, portfolio, autore, slide-page...) del sito servizi.lazio generato da Jekyll da _avada/. Vedi claude.md.
    COSA FA: elenca ed edita i file di _avada/_lazio (articoli), _avada/_categorie (pagine categoria) e _avada/_pagine (tutte le altre pagine, Home compresa).
    Articoli/categorie: titolo, SEO, descrizione, immagine, estratto e TESTO HTML. Duplica (= nuovo articolo) ed elimina.
-   Pagine: titolo, SEO title, descrizione + contenuto in due modi: scheda "Testi e immagini" (campi semplici per ogni testo, immagine e link, come l'editor di
-   WordPress) e scheda "HTML" (codice della sola zona <main>). Testata, menu e piede della pagina non si toccano da qui.
+   Pagine: titolo, SEO title, descrizione + contenuto in due modi: scheda "Editor visivo" (la pagina vera: si scrive sopra come in WordPress; funzioni in admin-lazio-wys.js), scheda "Elenco campi" (un campo per ogni testo,
+   immagine e link) e scheda "HTML" (codice della sola zona <main>). Testata, menu e piede della pagina non si toccano da qui.
    Elenchi, sidebar, correlati e categorie degli articoli si aggiornano da soli al deploy (Jekyll li genera dai contenuti).
    PUNTI CRITICI: (1) il testo e' HTML grezzo (render_with_liquid: false nel front matter): non e' Markdown, non toccare il front matter a mano.
    (2) Il percorso del file = URL pubblico (_avada/_lazio/blog/x.html -> /blog/x/; _avada/_pagine/home.html -> / ; _pagine/slide-page/x.html -> /slide-page/x/).
    Non c'e' rinomina: si duplica con il nuovo percorso e si elimina il vecchio.
    (3) Il front matter e' a righe singole 'chiave: "valore"': si usano A.fmGet/fmSet come negli altri moduli.
    (4) PAGINE: la pagina e' il file HTML completo del mirror (le risorse hanno percorsi relativi in base alla profondita' dell'URL): una pagina nuova si crea
-   duplicandone una con la STESSA profondita' (stesso numero di cartelle nell'indirizzo). La scheda "Testi e immagini" rilegge la zona <main> col parser del browser
+   duplicandone una con la STESSA profondita' (stesso numero di cartelle nell'indirizzo). La scheda "Elenco campi" rilegge la zona <main> col parser del browser
    e la riscrive SOLO se cambi qualcosa; senza modifiche il codice resta identico all'originale.
    (5) Home (_pagine/home.html) non si elimina da qui. */
 (function (A) {
   var ROOTS = { art: '_avada/_lazio', cat: '_avada/_categorie', pag: '_avada/_pagine' }, LBL = { art: 'Articoli', cat: 'Categorie', pag: 'Pagine' };
-  var LST = { art: [], cat: [], pag: [] }, cur = 'art', ED = null, VIS = null;
+  var LST = { art: [], cat: [], pag: [] }, cur = 'art', ED = null, VIS = null, WY = null;
   var esc = A.esc, $ = A.$;
   function q(v) { return '"' + String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'; }
   function uq(v) { return String(v || '').replace(/\\"/g, '"').replace(/\\\\/g, '\\'); }
@@ -144,13 +144,124 @@
     return ch ? VIS.d.body.innerHTML : null;
   }
   function syncMain() { /* dalla scheda attiva a ED.main */
-    if (ED.mode === 'vis') { var r = VIS ? applyVis() : null; if (r !== null) ED.main = r; }
+    if (ED.mode === 'wys') { if (WY && WY.dirty && WY.main) { ED.main = LZW.serialize(WY.main, WY.lq); WY.dirty = false; } }
+    else if (ED.mode === 'vis') { var r = VIS ? applyVis() : null; if (r !== null) ED.main = r; }
     else ED.main = $('pgHtml').value;
   }
+
+  /* ---------- EDITOR VISIVO (come WordPress): la pagina vera in un iframe, si scrive sopra. Le funzioni DOM sono in admin-lazio-wys.js (LZW) ---------- */
+  function wyBar() {
+    var b = function (c, l, ti) { return '<button class="btn sm" title="' + ti + '" onmousedown="event.preventDefault()" onclick="' + c + '">' + l + '</button> '; };
+    return '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0">' +
+      b("A.wyCmd('bold')", '<b>G</b>', 'Grassetto') + b("A.wyCmd('italic')", '<i>C</i>', 'Corsivo') + b('A.wyLink()', '\uD83D\uDD17 Link', 'Trasforma il testo selezionato in link') +
+      b("A.wyCmd('unlink')", 'Togli link', 'Toglie il link dal testo') + b("A.wyCmd('undo')", '\u21B6', 'Annulla') + b("A.wyCmd('redo')", '\u21B7', 'Ripeti') +
+      b('A.wyFull()', '\u2922 Schermo intero', 'Schermo intero / torna indietro') + '<button class="btn primary" onclick="A.lzSave()">Salva</button> ' +
+      '<span style="color:#787c82;font-size:12px">Clicca sul testo per scriverci sopra \u00B7 clicca su un\u0027immagine per cambiarla \u00B7 i riquadri grigi sono parti automatiche del sito</span></div>';
+  }
+  function wysStart() {
+    var tok = WY = { lq: [], dirty: false, full: false }, box = $('wyWrap'), url = live(ED.it);
+    box.innerHTML = '<p style="color:#787c82">Carico la pagina...</p>';
+    return fetch(url + '?lz=' + Date.now(), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('errore ' + r.status); return r.text(); }).then(function (html) {
+      if (WY !== tok) return;
+      var d = new DOMParser().parseFromString(html, 'text/html'), m = d.querySelector('main');
+      if (!m) throw new Error('la pagina online non ha una zona <main>');
+      [].slice.call(d.querySelectorAll('script,noscript')).forEach(function (s) { s.parentNode.removeChild(s); });
+      m.innerHTML = LZW.tokenize(ED.main, tok.lq);
+      LZW.chips(m, tok.lq); LZW.markEditable(m); LZW.prepImgs(m);
+      var b = d.createElement('base'); b.setAttribute('href', url); d.head.insertBefore(b, d.head.firstChild);
+      var st = d.createElement('style'); st.textContent = LZW.CSS; d.head.appendChild(st);
+      var fr = document.createElement('iframe');
+      fr.id = 'wysF'; fr.setAttribute('sandbox', 'allow-same-origin'); fr.style.cssText = 'width:100%;height:72vh;min-height:480px;border:1px solid #c3c4c7;background:#fff';
+      fr.onload = function () { wysInit(fr, tok); };
+      box.innerHTML = ''; box.appendChild(fr);
+      fr.srcdoc = '<!DOCTYPE html>' + d.documentElement.outerHTML;
+    }).catch(function (e) {
+      if (WY !== tok) return;
+      A.toast('Anteprima visiva non disponibile (' + (e && e.message || e) + '). Uso "Elenco campi".', true);
+      ED.mode = 'vis'; pgDraw();
+    });
+  }
+  function wysInit(fr, tok) {
+    if (WY !== tok) return;
+    var d = fr.contentDocument; if (!d) return;
+    tok.fr = fr; tok.d = d; tok.main = d.querySelector('main');
+    d.addEventListener('click', function (e) {
+      var t = e.target; if (!t || !t.closest) return;
+      if (t.closest('a')) e.preventDefault();
+      var im = t.closest('img');
+      if (im && tok.main && tok.main.contains(im)) { e.preventDefault(); wyImg(im); }
+    }, true);
+    d.addEventListener('submit', function (e) { e.preventDefault(); }, true);
+    d.addEventListener('input', function () { tok.dirty = true; }, true);
+    d.addEventListener('paste', function (e) { /* incolla sempre testo semplice: niente stili strani da Word/siti */
+      var cd = e.clipboardData; if (!cd) return;
+      e.preventDefault(); d.execCommand('insertText', false, cd.getData('text/plain'));
+    }, true);
+    d.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) { e.preventDefault(); A.lzSave(); } }, true);
+    try { fr.contentWindow.scrollTo(0, Math.max(0, tok.main.getBoundingClientRect().top - 10)); } catch (x) { /* ok */ }
+  }
+  A.wyCmd = function (c) { if (!WY || !WY.d) return; WY.fr.contentWindow.focus(); WY.d.execCommand(c, false, null); WY.dirty = true; };
+  A.wyLink = function () {
+    if (!WY || !WY.d) return;
+    var w = WY.fr.contentWindow, sel = w.getSelection(), n = sel && sel.anchorNode, el = n && (n.nodeType === 1 ? n : n.parentNode), a = el && el.closest ? el.closest('a') : null;
+    if (!sel || !sel.rangeCount || (sel.isCollapsed && !a)) return A.toast('Seleziona prima il testo da trasformare in link', true);
+    var rg = sel.getRangeAt(0).cloneRange();
+    var v = prompt('Indirizzo del link (es. /contatti/ oppure https://...). Lascia vuoto per togliere il link.', a ? (a.getAttribute('href') || '') : 'https://');
+    if (v === null) return;
+    v = v.trim(); w.focus(); sel.removeAllRanges(); sel.addRange(rg);
+    if (!v || v === 'https://') { if (a) WY.d.execCommand('unlink'); }
+    else if (a) a.setAttribute('href', v);
+    else WY.d.execCommand('createLink', false, v);
+    WY.dirty = true;
+  };
+  A.wyFull = function () {
+    if (!WY) return;
+    WY.full = !WY.full; var b = $('wyBox'), f = $('wysF');
+    b.style.cssText = WY.full ? 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9000;background:#f0f0f1;padding:8px 12px;overflow:hidden' : '';
+    if (f) f.style.height = WY.full ? 'calc(100vh - 70px)' : '72vh';
+  };
+  var WYI = null;
+  function wyImg(im) {
+    WYI = im;
+    var cur = im.getAttribute('data-lz-new'); if (cur === null) { cur = im.getAttribute('data-lz-src0') || ''; if (cur === '\u0000') cur = ''; }
+    var o = document.createElement('div'); o.id = 'wyOv';
+    o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center';
+    o.innerHTML = '<div style="background:#fff;padding:16px 18px;width:480px;max-width:94vw;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><h3 style="margin-top:0">Immagine</h3>' +
+      '<p style="text-align:center;background:#f0f0f1;padding:6px"><img src="' + esc(im.currentSrc || im.src) + '" style="max-width:100%;max-height:150px"></p>' +
+      '<label style="display:block;margin:8px 0"><span style="color:#787c82;font-size:11px">Carica una nuova immagine dal computer</span><input type="file" id="wyF" accept="image/*" style="width:100%"></label>' +
+      '<label style="display:block;margin:8px 0"><span style="color:#787c82;font-size:11px">oppure indirizzo dell\u0027immagine (percorso o https://...)</span><input id="wyP" value="' + esc(cur) + '" style="width:100%;box-sizing:border-box"></label>' +
+      '<label style="display:block;margin:8px 0"><span style="color:#787c82;font-size:11px">Testo alternativo (descrizione dell\u0027immagine)</span><input id="wyA" value="' + esc(im.getAttribute('alt') || '') + '" style="width:100%;box-sizing:border-box"></label>' +
+      '<p style="margin-bottom:0"><button class="btn primary" onclick="A.wyImgOk()">Applica</button> <button class="btn" onclick="A.wyImgNo()">Annulla</button></p></div>';
+    document.body.appendChild(o);
+  }
+  A.wyImgNo = function () { var o = $('wyOv'); if (o && o.parentNode) o.parentNode.removeChild(o); WYI = null; };
+  /* upload come A.upload di admin-media.js: base64 SENZA prefisso data:, nome normalizzato, sha se il file esiste gia' */
+  A.wyImgOk = A.wrap(function () {
+    var im = WYI, f = $('wyF').files[0], p = $('wyP').value.trim(), alt = $('wyA').value, old = im.getAttribute('data-lz-new');
+    if (old === null) { old = im.getAttribute('data-lz-src0') || ''; if (old === '\u0000') old = ''; }
+    function fin(path, prev) {
+      if (path !== old) { im.setAttribute('data-lz-new', path); im.removeAttribute('srcset'); im.setAttribute('src', prev || path); }
+      if (alt !== (im.getAttribute('alt') || '')) im.setAttribute('alt', alt);
+      WY.dirty = true; A.wyImgNo();
+    }
+    if (!f) { fin(p, ''); return; }
+    var depth = ED.it.url ? ED.it.url.split('/').length : 0, pre = new Array(depth + 1).join('../');
+    return new Promise(function (ok, ko) { var r = new FileReader(); r.onload = function () { ok(r.result.split(',')[1]); }; r.onerror = ko; r.readAsDataURL(f); }).then(function (b64) {
+      var name = f.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+      return A.getFile('assets/img/' + name).then(function (ex) { return ex.sha; }, function () { return ''; })
+        .then(function (sha) { return A.putFile('assets/img/' + name, b64, sha, 'admin: immagine ' + name, true); })
+        .then(function () { fin(pre + 'assets/img/' + name, URL.createObjectURL(f)); A.toast('Immagine caricata. Ora salva la pagina.'); });
+    });
+  });
+
   function pgDraw() {
-    var h = '<div style="margin:12px 0 8px"><button class="btn sm' + (ED.mode === 'vis' ? ' primary' : '') + '" onclick="A.pgMode(\'vis\')">Testi e immagini</button> <button class="btn sm' + (ED.mode === 'html' ? ' primary' : '') + '" onclick="A.pgMode(\'html\')">HTML</button></div>';
+    if (ED.mode === 'wys' && !window.LZW) ED.mode = 'vis';
+    var tb = function (m, l) { return '<button class="btn sm' + (ED.mode === m ? ' primary' : '') + '" onclick="A.pgMode(\'' + m + '\')">' + l + '</button> '; };
+    var h = '<div style="margin:12px 0 8px">' + tb('wys', 'Editor visivo') + tb('vis', 'Elenco campi') + tb('html', 'HTML') + '</div>';
+    WY = null; VIS = null;
+    if (ED.mode === 'wys') { $('pgBox').innerHTML = h + '<div id="wyBox">' + wyBar() + '<div id="wyWrap"></div></div>'; wysStart(); return; }
     if (ED.mode === 'vis') { VIS = buildVis(ED.main); h += '<div id="pgVis" style="max-height:640px;overflow:auto;padding-right:8px">' + visHtml(VIS) + '</div>'; }
-    else { VIS = null; h += '<textarea id="pgHtml" rows="30" style="width:100%;font-family:monospace;font-size:12px">' + esc(ED.main) + '</textarea>'; }
+    else { h += '<textarea id="pgHtml" rows="30" style="width:100%;font-family:monospace;font-size:12px">' + esc(ED.main) + '</textarea>'; }
     $('pgBox').innerHTML = h;
   }
   A.pgMode = function (m) { if (m === ED.mode) return; syncMain(); ED.mode = m; pgDraw(); };
@@ -158,7 +269,7 @@
     return A.getFile(it.path).then(function (f) {
       var s = A.splitFM(f.text), sp = splitPage(s.body);
       if (!sp) throw new Error('Questa pagina non ha una zona <main>: non si puo\u0027 modificare da qui.');
-      ED = { it: it, sha: f.sha, fm: s.fm, pre: sp.pre, main: sp.main, post: sp.post, mode: 'vis', seo0: uq(A.fmGet(s.fm, 'seo_title')), desc0: uq(A.fmGet(s.fm, 'description')) };
+      ED = { it: it, sha: f.sha, fm: s.fm, pre: sp.pre, main: sp.main, post: sp.post, mode: 'wys', seo0: uq(A.fmGet(s.fm, 'seo_title')), desc0: uq(A.fmGet(s.fm, 'description')) };
       var h = '<h2><button class="btn sm" onclick="A.lzBack()">&larr; Elenco</button> ' + esc(it.title || it.url) + '</h2><div class="card"><p style="color:#787c82">Indirizzo: ' + esc(disp(it)) + ' &nbsp; <a href="' + esc(live(it)) + '" target="_blank">apri</a></p>';
       FIELDS.pag.forEach(function (fd) {
         var v = uq(A.fmGet(s.fm, fd[0]));
