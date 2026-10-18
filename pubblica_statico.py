@@ -1,4 +1,4 @@
-﻿"""Prepara _out/ con il solo mirror statico (niente Jekyll, niente tool/admin/demo)."""
+"""Prepara _out/ con il solo mirror statico (niente Jekyll, niente tool/admin/demo)."""
 import os, shutil, subprocess, sys
 OUT = "_out"; TMP = "_avada_site"
 DIRS = ["admin","contatti","author","blog","categoria_portfolio","portfolio-items","servizi","servizi-a-roma","servizi-agli-edifici","servizi-ai-cittadini","servizi-alle-aziende","slide-page","wp-content","wp-includes"]
