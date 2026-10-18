@@ -27,3 +27,5 @@ automazioni/.env
 # Chat/appunti privati (mai su git)
 chat_*.md
 _out/
+
+_avada_site/
