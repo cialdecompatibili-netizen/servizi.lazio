@@ -1,4 +1,4 @@
-﻿name: Deploy site
+name: Deploy site
 on:
   push:
     branches: [main, master]
@@ -11,12 +11,15 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/_avada_Gemfile
+      JEKYLL_CMD: bundle exec jekyll
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-      - run: gem install jekyll -v 4.4.1 --no-document
+      - run: bundle install
       - run: python3 pubblica_statico.py
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
