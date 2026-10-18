@@ -1,7 +1,0 @@
----
-layout: "servizio"
-title: "Corsi professionali"
-description: ""
----
-{% assign items = site.lazio | where_exp: "i", "i.categorie contains 'servizi/servizi-ai-cittadini/corsi-professionali'" | sort: "date" | reverse %}
-<ul>{% for i in items %}<li><a href="{{ i.url | relative_url }}">{{ i.title }}</a></li>{% endfor %}</ul>

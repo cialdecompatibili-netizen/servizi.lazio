@@ -10,3 +10,6 @@ collections:
   categorie:
     output: true
     permalink: /:path/
+  pagine:
+    output: true
+    permalink: /:path/
