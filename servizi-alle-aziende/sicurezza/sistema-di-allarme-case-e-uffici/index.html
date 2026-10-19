@@ -298,7 +298,7 @@ div#ez-toc-container .ez-toc-title {font-size: 120%;}div#ez-toc-container .ez-to
       mostra('Compila tutti i campi richiesti (nome, email valida, oggetto, provincia, messaggio).', false); return;
     }
     btn.disabled = true; mostra('Invio in corso...', true);
-    var msg = 'Oggetto: ' + v('your-subject') + ' | Budget: ' + v('Budget') + ' | Provincia: ' + v('provincie') + '\n' + v('your-message');
+    var msg = 'Oggetto: ' + v('your-subject') + ' | Budget: ' + v('Budget') + ' | Provincia: ' + v('provincie') + ' | Messaggio: ' + v('your-message').replace(/\s+/g, ' ');
     token().then(function (tk) {
       if (!tk) { mostra('Verifica non riuscita. Riprova.', false); btn.disabled = false; return; }
       var d = new URLSearchParams();
