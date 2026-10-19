@@ -4,4 +4,4 @@ Crawl-delay: 5
 User-agent: bingbot
 Crawl-delay: 5
 
-Sitemap: https://cialdecompatibili-netizen.github.io/servizi.lazio/sitemap.xml
+Sitemap: https://servizi.lazio.it/sitemap.xml
