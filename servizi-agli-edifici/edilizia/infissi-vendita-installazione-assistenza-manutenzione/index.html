@@ -242,7 +242,7 @@ div#ez-toc-container .ez-toc-title {font-size: 120%;}div#ez-toc-container .ez-to
 </div><div class="fusion-sep-clear"></div><div class="fusion-separator fusion-full-width-sep sep-none" style="margin-left: auto;margin-right: auto;margin-top:10px;"></div>
 <div class="wpcf7 no-js" id="wpcf7-f14-p1648-o1" lang="it-IT" dir="ltr">
 <div class="screen-reader-response"><p role="status" aria-live="polite" aria-atomic="true"></p> <ul></ul></div>
-<form action="/servizi.lazio/servizi-agli-edifici/edilizia/infissi-vendita-installazione-assistenza-manutenzione/#wpcf7-f14-p1648-o1" method="post" class="wpcf7-form init" aria-label="Modulo di contatto" novalidate="novalidate" data-status="init">
+<form id="pv-form" method="post" class="wpcf7-form init" aria-label="Modulo di contatto" novalidate="novalidate" data-status="init">
 <div style="display: none;">
 <input type="hidden" name="_wpcf7" value="14" />
 <input type="hidden" name="_wpcf7_version" value="5.9.4" />
@@ -270,10 +270,63 @@ div#ez-toc-container .ez-toc-title {font-size: 120%;}div#ez-toc-container .ez-to
 <p><label> Messaggio (richiesto)<br />
 <span class="wpcf7-form-control-wrap" data-name="your-message"><textarea cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea wpcf7-validates-as-required" aria-required="true" aria-invalid="false" name="your-message"></textarea></span> </label>
 </p>
+<div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><label for="pv-web">Non compilare</label><input type="text" id="pv-web" name="website" tabindex="-1" autocomplete="off"></div>
 <p><input class="wpcf7-form-control wpcf7-submit has-spinner" type="submit" value="Invia" />
-</p><div class="fusion-alert alert custom alert-custom fusion-alert-center wpcf7-response-output fusion-alert-capitalize alert-dismissable" style="border-width:1px;"><button type="button" class="close toggle-alert" data-dismiss="alert" aria-hidden="true">&times;</button><div class="fusion-alert-content-wrapper"><span class="fusion-alert-content"></span></div></div>
+</p><p id="pv-esito" role="status" aria-live="polite" style="font-weight:600;margin:10px 0"></p>
+<div class="fusion-alert alert custom alert-custom fusion-alert-center wpcf7-response-output fusion-alert-capitalize alert-dismissable" style="border-width:1px;"><button type="button" class="close toggle-alert" data-dismiss="alert" aria-hidden="true">&times;</button><div class="fusion-alert-content-wrapper"><span class="fusion-alert-content"></span></div></div>
 </form>
 </div>
+
+<script>
+(function () {
+  var f = document.getElementById('pv-form'); if (!f) return;
+  var ENDPOINT = "https://contatti-form.evabomboniere.workers.dev";
+  var esito = document.getElementById('pv-esito'), btn = f.querySelector('input[type=submit]');
+  var t0 = Date.now(), pre = null, preT = 0;
+  function mostra(m, ok) { esito.textContent = m; esito.style.color = ok ? '' : '#b00020'; }
+  function hex(b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+  async function altcha() {
+    var sep = ENDPOINT.indexOf('?') < 0 ? '?' : '&';
+    var c = await (await fetch(ENDPOINT + sep + 'challenge=1')).json();
+    if (!c.challenge) throw new Error('altcha');
+    var enc = new TextEncoder();
+    for (var n = 0; n <= c.maxnumber; n++) {
+      if (hex(await crypto.subtle.digest('SHA-256', enc.encode(c.salt + n))) === c.challenge)
+        return btoa(JSON.stringify({ algorithm: c.algorithm, challenge: c.challenge, number: n, salt: c.salt, signature: c.signature }));
+    }
+    throw new Error('altcha');
+  }
+  function prepara() { preT = Date.now(); pre = altcha().catch(function () { return ''; }); }
+  function token() {
+    if (!pre || Date.now() - preT > 480000) prepara();
+    return pre.then(function (v) { if (v) return v; prepara(); return pre; });
+  }
+  prepara();
+  function v(n) { var e = f.elements[n]; return e ? String(e.value || '').trim() : ''; }
+  f.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!v('your-name') || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('your-email')) || !v('your-subject') || !v('provincie') || !v('your-message')) {
+      mostra('Compila tutti i campi richiesti (nome, email valida, oggetto, provincia, messaggio).', false); return;
+    }
+    btn.disabled = true; mostra('Invio in corso...', true);
+    var msg = 'Oggetto: ' + v('your-subject') + ' | Budget: ' + v('Budget') + ' | Provincia: ' + v('provincie') + '\n' + v('your-message');
+    token().then(function (tk) {
+      if (!tk) { mostra('Verifica non riuscita. Riprova.', false); btn.disabled = false; return; }
+      var d = new URLSearchParams();
+      d.set('nome', v('your-name')); d.set('email', v('your-email')); d.set('messaggio', msg);
+      d.set('website', v('website')); d.set('altcha', tk); d.set('t', String(t0));
+      d.set('tipo', 'preventivo'); d.set('sito', location.hostname); d.set('pagina', location.pathname);
+      return fetch(ENDPOINT, { method: 'POST', body: d }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.status === 'ok') { f.reset(); mostra('Richiesta inviata, grazie! Ti rispondiamo il prima possibile.', true); }
+        else { mostra('Invio non riuscito. Riprova tra poco.', false); }
+        prepara(); btn.disabled = false; t0 = Date.now();
+      });
+    }).catch(function () { mostra('Errore di rete. Riprova.', false); prepara(); btn.disabled = false; });
+  });
+})();
+</script>
+
+
 
 
 					</div>
