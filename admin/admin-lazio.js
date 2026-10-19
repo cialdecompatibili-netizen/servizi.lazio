@@ -60,7 +60,7 @@
   A.lzTab = function (k) { cur = k; (LST[k].length ? Promise.resolve() : load()).then(draw); };
   A.views.lazio = function () { cur = 'art'; return (LST.art.length ? Promise.resolve() : load()).then(draw); };
   A.views.pagine = function () { cur = 'pag'; return (LST.pag.length ? Promise.resolve() : load()).then(draw); };
-  var INC = [['_avada/_includes/avada/header.html', 'Menu e testata'], ['_avada/_includes/avada/footer.html', 'Piè di pagina']], INCED = null;
+  var INC = [['_avada/_includes/avada/header.html', 'Menu e testata'], ['_avada/_includes/avada/preventivo.html', 'Modulo preventivo e comuni'], ['_avada/_includes/avada/footer.html', 'Piè di pagina']], INCED = null;
   A.views.menu = function () {
     var h = '<h2>Menu e piè di pagina</h2><div class="card"><p style="color:#787c82">Questi blocchi sono unici: una modifica vale per TUTTE le pagine e gli articoli del sito. Nel codice ci sono istruzioni tra parentesi graffe ({% ... %} e {{ ... }}): non cancellarle.</p>';
     INC.forEach(function (x, i) { h += '<p><button class="btn" onclick="A.incEdit(' + i + ')">' + x[1] + '</button></p>'; });
