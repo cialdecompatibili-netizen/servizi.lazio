@@ -523,6 +523,13 @@ var A = (function () {
       if (hm && pm && pm[1] !== 'admin') REPO = hm[1] + '/' + pm[1]; // pm[1]=='admin': sito radice <utente>.github.io, il repo non e' nel percorso -> campo vuoto, lo compila l'utente
     }
     $('repo').value = REPO;
+    /* DOMINIO PROPRIO (servizi.lazio.it): l'indirizzo non contiene piu' utente/repo. Il deploy scrive admin/repo.txt con il nome del repo
+       (variabile GITHUB_REPOSITORY di Actions, nessun nome scritto nel codice): se c'e', il repo si compila da solo e il campo si nasconde,
+       cosi' il login chiede SOLO il token. Se manca (anteprima locale, altro hosting) il campo resta com'e' e lo scrive l'utente. */
+    if (!REPO) fetch('repo.txt', { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      t = (t || '').trim();
+      if (/^[\w.-]+\/[\w.-]+$/.test(t) && !REPO) { REPO = t; $('repo').value = t; $('repo').style.display = 'none'; }
+    }).catch(function () {});
     if (TOK) { api('GET', '').then(function (r) { BR = r.default_branch || 'main'; start(); }).catch(function () { $('login').style.display = 'flex'; }); }
   });
   api_.login = login; api_.logout = logout; api_.toggleMenu = toggleMenu;
