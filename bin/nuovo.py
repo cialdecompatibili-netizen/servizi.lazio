@@ -32,7 +32,7 @@ os.chdir(R)
 LAZIO = os.path.join("_avada", "_lazio")
 CATD = os.path.join("_avada", "_categorie")
 CATYML = os.path.join("_avada", "_data", "categorie.yml")
-SITO = "https://cialdecompatibili-netizen.github.io/servizi.lazio"  # con CNAME diventa https://<dominio>
+SITO = "https://servizi.lazio.it"  # dominio proprio (file CNAME); l'anteprima github.io non esiste piu'
 if os.path.isfile("CNAME"):
     SITO = "https://" + open("CNAME").read().strip()
 
