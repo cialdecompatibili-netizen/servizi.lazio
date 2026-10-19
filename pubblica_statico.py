@@ -6,6 +6,9 @@ FILES = ["index.html","robots.txt","sitemap_index.xml","404.html","CNAME"]
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 for d in DIRS:
     if os.path.isdir(d): shutil.copytree(d, os.path.join(OUT, d))
+# admin/repo.txt: nome del repo per il login dell'admin su dominio proprio (solo il token da inserire)
+if os.environ.get("GITHUB_REPOSITORY") and os.path.isdir(os.path.join(OUT, "admin")):
+    open(os.path.join(OUT, "admin", "repo.txt"), "w").write(os.environ["GITHUB_REPOSITORY"].strip() + "\n")
 for f in FILES:
     if os.path.isfile(f): shutil.copy(f, OUT)
 open(os.path.join(OUT, ".nojekyll"), "w").close()
