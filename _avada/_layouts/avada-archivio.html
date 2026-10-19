@@ -1,13 +1,13 @@
 ---
 ---
-{%- assign canon = page.url | remove_first: site.avada_prefix -%}
+{%- assign canon = page.url | remove_first: site.avada_prefix -%}{%- assign vuota = true -%}{%- for q in site.lazio -%}{%- if q.categorie contains page.cat -%}{%- assign vuota = false -%}{%- endif -%}{%- endfor -%}
 {% raw %}<!DOCTYPE html>
 <html class="avada-html-layout-wide avada-html-header-position-top avada-html-is-archive" lang="it-IT" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+	{% endraw %}{% if vuota %}<meta name='robots' content='noindex, follow' />{% else %}{% raw %}<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />{% endraw %}{% endif %}{% raw %}
 
 	<!-- This site is optimized with the Yoast SEO plugin v22.6 - https://yoast.com/wordpress/plugins/seo/ -->
 	<title>{% endraw %}{{ page.seo_title | default: page.title | escape }}{% raw %}</title>
