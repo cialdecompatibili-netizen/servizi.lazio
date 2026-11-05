@@ -1,0 +1,5 @@
+{%- assign items = site.pagine | where: "wp_tipo", "portfolio" | sort: "date" | reverse -%}
+{%- for i in items limit: 4 -%}
+{%- assign purl = i.url | remove_first: site.avada_prefix %}
+<a href="{{ site.baseurl }}{{ purl }}" target="_self" rel="" title="{{ i.title | escape }}"><img width="66" height="66" src="{{ site.baseurl }}/wp-content/uploads/2026/11/portfolio/t/{{ i.foto }}" class="attachment-recent-works-thumbnail size-recent-works-thumbnail wp-post-image" alt="{{ i.title | escape }}" decoding="async" loading="lazy" style="object-fit:cover;" /></a>
+{%- endfor %}

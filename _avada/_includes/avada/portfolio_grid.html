@@ -1,0 +1,13 @@
+{%- assign items = site.pagine | where: "wp_tipo", "portfolio" | sort: "date" | reverse -%}
+{%- if include.tipo -%}{%- assign items = items | where: "tipo_lavoro", include.tipo -%}{%- endif -%}
+<div class="pf-grid">
+{%- for i in items -%}
+{%- assign purl = i.url | remove_first: site.avada_prefix %}
+<a class="pf-card" href="{{ site.baseurl }}{{ purl }}" data-tipo="{{ i.tipo_lavoro }}">
+<img src="{{ site.baseurl }}/wp-content/uploads/2026/11/portfolio/{{ i.foto }}" alt="{{ i.title | escape }}" loading="lazy">
+<div class="pf-card-body"><span class="pf-badge">{{ i.tipo_lavoro }}</span>
+<h3>{{ i.title }}</h3>
+<span class="pf-meta">{{ i.zona }} &middot; {{ i.completato }}</span>
+<p>{{ i.riepilogo }}</p></div></a>
+{%- endfor %}
+</div>
