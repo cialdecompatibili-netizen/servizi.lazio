@@ -74,3 +74,27 @@
 - slug: "servizi/servizi-alle-aziende/trasporti"
   nome: "Trasporti"
   id: 86
+- slug: "servizi/servizi-a-frosinone"
+  nome: "Servizi a Frosinone"
+  id: 9103
+- slug: "servizi/servizi-a-frosinone/servizi-edili-frosinone"
+  nome: "Servizi edili Frosinone"
+  id: 9104
+- slug: "servizi/servizi-a-latina"
+  nome: "Servizi a Latina"
+  id: 9101
+- slug: "servizi/servizi-a-latina/servizi-edili-latina"
+  nome: "Servizi edili Latina"
+  id: 9102
+- slug: "servizi/servizi-a-rieti"
+  nome: "Servizi a Rieti"
+  id: 9107
+- slug: "servizi/servizi-a-rieti/servizi-edili-rieti"
+  nome: "Servizi edili Rieti"
+  id: 9108
+- slug: "servizi/servizi-a-viterbo"
+  nome: "Servizi a Viterbo"
+  id: 9105
+- slug: "servizi/servizi-a-viterbo/servizi-edili-viterbo"
+  nome: "Servizi edili Viterbo"
+  id: 9106
