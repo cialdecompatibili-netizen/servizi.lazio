@@ -337,6 +337,38 @@ div#ez-toc-container .ez-toc-title {font-size: 120%;}div#ez-toc-container .ez-to
 </article>
 </div>
 </div>
+<nav id="sl-pager" aria-label="Paginazione"></nav>
+<style>
+#sl-pager{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:30px 0}
+#sl-pager button{min-width:40px;height:40px;padding:0 12px;border:1px solid #cfd4da;border-radius:6px;background:#fff;color:#1d2733;font-size:15px;cursor:pointer}
+#sl-pager button:hover:not(:disabled){background:#eef2f6}
+#sl-pager button.on{background:#c8102e;border-color:#c8102e;color:#fff;font-weight:700}
+#sl-pager button:disabled{opacity:.35;cursor:default}
+</style>
+<script>
+(function(){
+var PER=50,c=document.querySelector('.fusion-posts-container'),pg=document.getElementById('sl-pager');
+if(!c||!pg)return;
+var it=[].slice.call(c.querySelectorAll(':scope > article'));
+var N=Math.ceil(it.length/PER);
+if(N<2){pg.style.display='none';return;}
+function show(p){
+ p=Math.max(1,Math.min(N,p));
+ it.forEach(function(a,i){a.style.display=(i>=(p-1)*PER&&i<p*PER)?'':'none';});
+ var h='';
+ function b(l,t,d,on){h+='<button type="button" data-p="'+t+'"'+(d?' disabled':'')+(on?' class="on"':'')+'>'+l+'</button>';}
+ b('&laquo;',1,p==1);b('&lsaquo;',p-1,p==1);
+ for(var i=1;i<=N;i++)b(i,i,false,i==p);
+ b('&rsaquo;',p+1,p==N);b('&raquo;',N,p==N);
+ pg.innerHTML=h;
+ if(arguments[1]!==false)c.scrollIntoView({behavior:'smooth',block:'start'});
+ try{history.replaceState(null,'','#pagina-'+p);}catch(e){}
+}
+pg.addEventListener('click',function(e){var t=e.target.closest('button');if(t&&!t.disabled)show(+t.getAttribute('data-p'));});
+var m=location.hash.match(/pagina-(\d+)/);
+show(m?+m[1]:1,false);
+})();
+</script>
 </section>
 </div> <!-- fusion-row -->
 </main>  <!-- #main -->
