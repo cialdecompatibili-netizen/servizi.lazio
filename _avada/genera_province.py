@@ -3,7 +3,7 @@
 import re, io, os, sys
 BASE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(BASE, '_lazio', 'servizi-a-roma', 'servizi-edili-roma')
-OUT = os.path.join(BASE, '_lazio', 'servizi-per-provincia')
+OUT = None
 DATE = '2026-11-05T09:00:00'
 
 PROV = {
@@ -84,7 +84,6 @@ def slug(s):
 def q(s): return s.replace('\\', '\\\\').replace('"', '\\"')
 
 def main():
-    os.makedirs(OUT, exist_ok=True)
     files = os.listdir(SRC)
     wp = 91001
     made = []
@@ -103,7 +102,8 @@ def main():
             body.append('<h2>%s</h2>' % loch.format(**P))
             body.append('<p>%s</p>' % loct.format(**P))
             body.append(CTA.format(**P))
-            cats = '["servizi/servizi-agli-edifici/edilizia", "servizi/servizi-agli-edifici", "servizi/servizi-per-provincia"]'
+            cats = '["servizi/servizi-agli-edifici/edilizia", "servizi/servizi-agli-edifici", "servizi/servizi-a-%s/servizi-edili-%s", "servizi/servizi-a-%s"]' % (pk, pk, pk)
+            OUT = os.path.join(BASE, '_lazio', 'servizi-a-' + pk, 'servizi-edili-' + pk); os.makedirs(OUT, exist_ok=True)
             head = ['---', 'layout: "avada-articolo"', 'title: "%s"' % q(title), 'description: "%s"' % q(desc),
                     'seo_title: "%s - Servizi Lazio"' % q(title), 'date: "%s"' % DATE, 'last_modified_at: "%s"' % DATE,
                     'wp_id: %d' % wp, 'wp_tipo: "post"', 'categorie: ' + cats] + keep + [
