@@ -217,3 +217,9 @@ S('Collaudo e certificazione sistemi anticaduta a Roma e nel Lazio', "il collaud
   [('Cosa si verifica', "Fissaggi, tenuta degli ancoraggi, integrità di cavi e componenti, documentazione."),
    ('Documenti', "Rapporto di collaudo e certificazione consegnati al committente."),
    ('Quando', "Dopo l'installazione e a intervalli regolari previsti dal fabbricante e dalla normativa.")])
+
+S('Smaltimento amianto a Roma e nel Lazio', "lo smaltimento dell'amianto e dei materiali che lo contengono",
+  "L'<strong>amianto</strong> non si butta come un normale rifiuto: va rimosso, imballato e conferito in impianti autorizzati da ditte abilitate. Un corretto smaltimento protegge la salute di chi abita e di chi lavora.",
+  [('Cosa si smaltisce', "Lastre di eternit su tetti e capannoni, canne fumarie e serbatoi in cemento-amianto, tubazioni, pavimenti in vinil-amianto e altri materiali che lo contengono. Prima di intervenire si fa un <strong>sopralluogo</strong> e, se serve, un campionamento per riconoscere il materiale."),
+   ('Come avviene lo smaltimento', "La ditta, iscritta agli albi previsti, predispone il piano di lavoro da presentare all'ente competente, mette in sicurezza l'area, rimuove i materiali bagnandoli e incapsulandoli, li imballa con sistemi a norma e li trasporta in <strong>discarica autorizzata</strong>, con la documentazione del rifiuto."),
+   ('Rimozione, incapsulamento e copertura', "Non sempre la rimozione è l'unica strada: in alcuni casi si può incapsulare o confinare il materiale. Dopo la rimozione di un tetto si può posare una nuova copertura, anche con <strong>lavori in quota su fune</strong> dove il ponteggio è difficile. La scelta si fa dopo il sopralluogo.")])

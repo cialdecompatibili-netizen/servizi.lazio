@@ -4,7 +4,7 @@ import re, io, os
 from servizi_nuovi_data import L
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATE = '2026-11-05T12:00:00'
-ASSIST = ('linee vita', 'condomini', 'infiltrazioni', 'fotovoltaici', 'ponti e viadotti', 'campanili')
+ASSIST = ('linee vita', 'condomini', 'infiltrazioni', 'fotovoltaici', 'ponti e viadotti', 'campanili', 'amianto')
 
 def slug(s):
     s = s.lower()
