@@ -1328,9 +1328,10 @@ var avadaFusionSliderVars = {"side_header_break_point":"1100","slider_position":
 				});
 				</script>
 						</div>
-	<!--card-click--><style>article.fusion-post-medium{cursor:pointer;box-sizing:border-box;padding:10px;border-radius:6px;transition:transform .2s,box-shadow .2s,background-color .2s;-webkit-tap-highlight-color:rgba(0,0,0,.08)}
-@media (hover:hover){article.fusion-post-medium:hover{background:#fafafa;box-shadow:0 6px 22px rgba(0,0,0,.14);transform:translateY(-2px)}}
-article.fusion-post-medium:active{background:#f1f1f1;box-shadow:0 2px 10px rgba(0,0,0,.18)}</style>
-<script>document.addEventListener('click',function(e){var a=e.target.closest('article.fusion-post-medium');if(!a||e.target.closest('a,button,input,label'))return;if(window.getSelection&&String(window.getSelection()))return;var l=a.querySelector('.fusion-post-title a,.fusion-rollover-title-link');if(l)window.location.href=l.href;});</script><!--/card-click-->
+	<!--card-click--><style>article.fusion-post-medium,article.fusion-post-grid,.fusion-portfolio-post,li.fusion-carousel-item,.fusion-tabs-widget-content li{cursor:pointer;border-radius:6px;transition:transform .2s,box-shadow .2s,background-color .2s;-webkit-tap-highlight-color:rgba(0,0,0,.08)}
+article.fusion-post-medium{box-sizing:border-box;padding:10px}
+@media (hover:hover){article.fusion-post-medium:hover,article.fusion-post-grid:hover,.fusion-portfolio-post:hover,li.fusion-carousel-item:hover{background:#fafafa;box-shadow:0 6px 22px rgba(0,0,0,.14);transform:translateY(-2px)}.fusion-tabs-widget-content li:hover{background:#f5f5f5}}
+article.fusion-post-medium:active,article.fusion-post-grid:active,.fusion-portfolio-post:active,li.fusion-carousel-item:active,.fusion-tabs-widget-content li:active{background:#ececec}</style>
+<script>document.addEventListener('click',function(e){var c=e.target.closest('article.fusion-post-medium,article.fusion-post-grid,.fusion-portfolio-post,li.fusion-carousel-item,.fusion-tabs-widget-content li');if(!c||e.target.closest('a,button,input,label'))return;if(window.getSelection&&String(window.getSelection()))return;var l=c.querySelector('.fusion-post-title a,.fusion-rollover-title-link,.post-holder a,h2 a,h3 a,h4 a')||c.querySelector('a[href]:not(.fusion-rollover-gallery):not([rel~=tag]):not([rel~=author])');if(l&&l.getAttribute('href')&&l.getAttribute('href')!=='#')window.location.href=l.href;});</script><!--/card-click-->
 </body>
 </html>
