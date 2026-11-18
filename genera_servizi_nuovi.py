@@ -15,7 +15,7 @@ def q(s): return s.replace('\\', '\\\\').replace('"', '\\"')
 def main():
     wp, made = 92001, 0
     for t, cosa, intro, secs in L:
-        cat = 'assistenza-agli-edifici' if any(k in t.lower() for k in ASSIST) else 'edilizia'
+        cat = 'sanificazioni' if 'disinfestazione' in t.lower() else ('assistenza-agli-edifici' if any(k in t.lower() for k in ASSIST) else 'edilizia')
         title = '%s: preventivi gratuiti' % t
         desc = 'Cerchi professionisti per %s a Roma e nel Lazio? Richiedi preventivi gratuiti al 100%% e senza impegno.' % cosa
         out = os.path.join(BASE, '_lazio', 'servizi-agli-edifici', cat); os.makedirs(out, exist_ok=True)
